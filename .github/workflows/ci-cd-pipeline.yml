@@ -7,6 +7,13 @@ on:
     branches: [ main, develop ]
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  issues: write
+  checks: write
+  pull-requests: write
+  actions: read
+
 jobs:
   build-and-test:
     name: Build, Test & Quality Analysis
