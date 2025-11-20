@@ -42,9 +42,14 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # 4. Compilar el proyecto
-      - name: 🔨 Build with Maven
-        run: mvn clean compile -DskipTests
+      # 4. Build, Test & Generate Coverage (with retry)
+      - name: 🔨 Build, Test & Coverage
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_on: error
+          command: mvn clean verify -U
 
       # 5. Ejecutar pruebas unitarias
       - name: 🧪 Run Unit Tests
