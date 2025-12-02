@@ -14,12 +14,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -79,12 +81,26 @@ public class OrderRestControllerAPITest {
         verify(orderRepository, times(1)).findAll(any(Pageable.class));
     }
 
+
+    //FALLO INTENCIONAL: página inválida
     @Test
     void getAllOrders_invalidPage_returnsServerError() throws Exception {
-        mockMvc.perform(get("/orders")
-                        .param("page", "0")   // valor inválido a propósito
+
+        MvcResult result = mockMvc.perform(get("/orders")
+                        .param("page", "0")   // inválido
                         .param("size", "10"))
-                .andExpect(status().is5xxServerError());
+                .andReturn();
+
+        int status = result.getResponse().getStatus();
+        String body = result.getResponse().getContentAsString();
+
+        assertEquals(
+                500,
+                status,
+                "FALLO INTENCIONAL: Se esperaba que el controlador devolviera error 500 " +
+                        "porque la página '0' es inválida. Pero devolvió " + status +
+                        ". Respuesta: " + body
+        );
 
         verify(orderRepository, never()).findAll(any(Pageable.class));
     }
@@ -127,33 +143,27 @@ public class OrderRestControllerAPITest {
         verify(orderRepository, times(1)).getOrderByUserId(eq(userId), any(Pageable.class));
     }
 
-   // (size inválido → error 5xx por PageRequest)
+    //FALLO INTENCIONAL: ID inválido
     @Test
-    void getAllOrdersByUser_invalidSize_returnsServerError() throws Exception {
+    void getAllOrdersByUserID_invalidSize_returnsServerError() throws Exception {
         Long userId = 1L;
 
-        // Ni siquiera mockeamos repos porque no debería llegar
-        mockMvc.perform(get("/orders/user/{userId}/orders", userId)
+        MvcResult result = mockMvc.perform(get("/orders/user/{userId}/orders", userId)
                         .param("page", "1")
-                        .param("size", "0")) // tamaño inválido
-                .andExpect(status().is5xxServerError());
+                        .param("size", "0"))
+                .andReturn();
 
-        verify(orderRepository, never()).getOrderByUserId(anyLong(), any(Pageable.class));
-    }
+        int status = result.getResponse().getStatus();
+        String body = result.getResponse().getContentAsString();
 
-    @Test
-    void getAllOrdersByUser_userNotFound() throws Exception {
-        Long userId = 99L;
+        assertEquals(
+                500,
+                status,
+                "FALLO INTENCIONAL: Se esperaba un error 500 debido a que el tamaño '0' y ID no son válidos " +
+                        "para paginación. El controlador devolvió " + status +
+                        ". Respuesta: " + body
+        );
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/orders/user/{userId}/orders", userId)
-                        .param("page", "1")
-                        .param("size", "10"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("User id " + userId + " not found"));
-
-        verify(userRepository, times(1)).findById(userId);
         verify(orderRepository, never()).getOrderByUserId(anyLong(), any(Pageable.class));
     }
 

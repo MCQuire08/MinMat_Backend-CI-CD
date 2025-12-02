@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.project.demo.rest.game.GameRestControllerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-12-02T05:58:12" hostname="DESKTOP-DQ4VE49" time="0.083">
+<testsuite name="com.project.demo.rest.game.GameRestControllerTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-12-02T21:02:54" hostname="DESKTOP-DQ4VE49" time="0.06">
   <properties/>
-  <testcase name="testAddGame()" classname="com.project.demo.rest.game.GameRestControllerTest" time="0.018"/>
-  <testcase name="testGetAllGames()" classname="com.project.demo.rest.game.GameRestControllerTest" time="0.013"/>
-  <testcase name="testUpdateGame_WhenGameExists()" classname="com.project.demo.rest.game.GameRestControllerTest" time="0.018"/>
-  <testcase name="testUpdateGame_WhenGameNotExists()" classname="com.project.demo.rest.game.GameRestControllerTest" time="0.017"/>
-  <testcase name="testDeleteGame()" classname="com.project.demo.rest.game.GameRestControllerTest" time="0.014"/>
-  <system-out><![CDATA[23:58:12.999 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
-23:58:12.999 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
-23:58:12.999 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
-23:58:13.017 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
-23:58:13.017 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
-23:58:13.017 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
-23:58:13.031 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
-23:58:13.031 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
-23:58:13.032 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
-23:58:13.049 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
-23:58:13.050 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
-23:58:13.050 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
-23:58:13.067 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
-23:58:13.067 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
-23:58:13.067 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+  <testcase name="testAddGame()" classname="com.project.demo.rest.game.GameRestControllerTest" time="0.014"/>
+  <testcase name="testGetAllGames()" classname="com.project.demo.rest.game.GameRestControllerTest" time="0.01"/>
+  <testcase name="testUpdateGame_WhenGameExists()" classname="com.project.demo.rest.game.GameRestControllerTest" time="0.011"/>
+  <testcase name="testUpdateGame_WhenGameNotExists()" classname="com.project.demo.rest.game.GameRestControllerTest" time="0.011"/>
+  <testcase name="testDeleteGame()" classname="com.project.demo.rest.game.GameRestControllerTest" time="0.011"/>
+  <system-out><![CDATA[15:02:54.650 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+15:02:54.650 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+15:02:54.651 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 1 ms
+15:02:54.663 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+15:02:54.664 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+15:02:54.664 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+15:02:54.673 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+15:02:54.673 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+15:02:54.674 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 1 ms
+15:02:54.686 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+15:02:54.686 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+15:02:54.686 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+15:02:54.697 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+15:02:54.697 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+15:02:54.698 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 1 ms
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

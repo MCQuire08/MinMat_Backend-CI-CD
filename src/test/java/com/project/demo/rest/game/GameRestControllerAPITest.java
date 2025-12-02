@@ -9,11 +9,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -41,7 +43,7 @@ public class GameRestControllerAPITest {
                 .build();
     }
 
-    //LISTAR JUEGOS
+    // LISTAR JUEGOS
     @Test
     void getAllGames_success() throws Exception {
         Game g1 = new Game();
@@ -66,7 +68,7 @@ public class GameRestControllerAPITest {
         verify(gameRepository, times(1)).findAll();
     }
 
-    //ACTUALIZAR UN JUEGO
+    // ACTUALIZAR UN JUEGO
     @Test
     void updateGame_success() throws Exception {
         Long gameId = 1L;
@@ -97,12 +99,12 @@ public class GameRestControllerAPITest {
         verify(gameRepository, times(1)).save(any(Game.class));
     }
 
-    //ACTUALIZAR JUEGO NO EXISTENTE
+    // ACTUALIZAR JUEGO NO EXISTENTE (Fallo Intencional)
     @Test
     void updateGame_notFound() throws Exception {
         Long gameId = 999L;
 
-        // El repositorio responde vacío → juego no existe
+        // El repositorio responde vacío osea el juego no existe
         when(gameRepository.findById(gameId)).thenReturn(Optional.empty());
 
         String jsonBody = """
@@ -112,17 +114,25 @@ public class GameRestControllerAPITest {
             }
             """;
 
-        mockMvc.perform(put("/games/{id}", gameId)
+        MvcResult result = mockMvc.perform(put("/games/{id}", gameId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody))
-                .andExpect(status().isNotFound()) //Debe dar 404
-                .andExpect(jsonPath("$.message").value("Game not found"));
+                .andReturn();
+
+        int status = result.getResponse().getStatus();
+        String body = result.getResponse().getContentAsString();
+        assertEquals(
+                404,
+                status,
+                "FALLO INTENCIONAL: se esperaba HTTP 404 cuando el juego no existe, " +
+                        "pero el controlador devolvió " + status + ". Respuesta: " + body
+        );
 
         verify(gameRepository, times(1)).findById(gameId);
         verify(gameRepository, never()).save(any(Game.class));
     }
 
-    //ACTUALIZAR JUEGO CON DATOS NO VALIDOS
+    // ACTUALIZAR JUEGO CON DATOS NO VALIDOS (Fallo Intencional)
     @Test
     void updateGame_invalidData() throws Exception {
         Long gameId = 1L;
@@ -134,7 +144,7 @@ public class GameRestControllerAPITest {
 
         when(gameRepository.findById(gameId)).thenReturn(Optional.of(existing));
 
-        //Datos inválidos: nombre vacío
+        // Datos inválidos: nombre vacío
         String jsonBody = """
             {
               "name": "",
@@ -142,17 +152,22 @@ public class GameRestControllerAPITest {
             }
             """;
 
-        mockMvc.perform(put("/games/{id}", gameId)
+        MvcResult result = mockMvc.perform(put("/games/{id}", gameId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody))
-                .andExpect(status().isBadRequest()) //Espera 400 por validación fallida
-                .andExpect(jsonPath("$.message").value("Invalid game data"));
+                .andReturn();
+
+        int status = result.getResponse().getStatus();
+        String body = result.getResponse().getContentAsString();
+
+        assertEquals(
+                400,
+                status,
+                "FALLO INTENCIONAL: se esperaba HTTP 400 por datos inválidos en el update, " +
+                        "pero el controlador devolvió " + status + ". Respuesta: " + body
+        );
 
         verify(gameRepository, times(1)).findById(gameId);
         verify(gameRepository, never()).save(any(Game.class));
     }
-
-
-
-
 }

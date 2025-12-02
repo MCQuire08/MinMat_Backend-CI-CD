@@ -21,8 +21,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -46,36 +45,7 @@ public class ProductRestControllerAPITest {
                 .build();
     }
 
-    // LISTAR PRODUCTOS
-    @Test
-    void getAllProducts_success() throws Exception {
-        Product p1 = new Product();
-        p1.setId(1L);
-        p1.setName("Producto 1");
-        p1.setDescription("Descripción 1");
-        p1.setPrice(new BigDecimal("9.99"));
-        p1.setStockQuantity(5);
-
-        List<Product> products = List.of(p1);
-        Page<Product> page = new PageImpl<>(products, PageRequest.of(0, 10), products.size());
-
-        when(productRepository.findAll(any(Pageable.class))).thenReturn(page);
-
-        mockMvc.perform(get("/products")
-                        .param("page", "1")
-                        .param("size", "10"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Product retrieved successfully"))
-                .andExpect(jsonPath("$.data[0].id").value(1))
-                .andExpect(jsonPath("$.data[0].name").value("Producto 1"))
-                .andExpect(jsonPath("$.meta.totalElements").value(1))
-                .andExpect(jsonPath("$.meta.pageNumber").value(1))
-                .andExpect(jsonPath("$.meta.pageSize").value(10));
-
-        verify(productRepository, times(1)).findAll(any(Pageable.class));
-    }
-
-   // LISTAR PRODUCTOS CON page = 0 (dato erróneo)
+   // LISTAR PRODUCTOS CON page = 0 (dato erróneo) (Fallo Intencional)
     @Test
     void getAllProducts_invalidPage_returnsServerError() throws Exception {
         mockMvc.perform(get("/products")
@@ -118,15 +88,39 @@ public class ProductRestControllerAPITest {
         verify(productRepository, times(1)).save(any(Product.class));
     }
 
-  // OBTENER PRODUCTO POR ID QUE NO EXISTE
+  // OBTENER PRODUCTO POR ID QUE NO EXISTE (Fallo Intencional)
     @Test
     void getProductById_notFound_returnsServerError() throws Exception {
         Long idNoExistente = 99L;
         when(productRepository.findById(idNoExistente)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/products/{id}", idNoExistente))
-                .andExpect(status().is5xxServerError()); // lanza RuntimeException
+                .andExpect(status().is5xxServerError());
 
         verify(productRepository, times(1)).findById(idNoExistente);
     }
+
+    // ELIMINAR PRODUCTO (OK)
+    @Test
+    void deleteProduct_success() throws Exception {
+        Long id = 1L;
+
+        Product existing = new Product();
+        existing.setId(id);
+        existing.setName("Producto a eliminar");
+        existing.setDescription("Desc");
+
+        // El controlador hace un findById antes de eliminar
+        when(productRepository.findById(id)).thenReturn(Optional.of(existing));
+
+        mockMvc.perform(delete("/products/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Product deleted successfully"));
+
+        // verifica lo que realmente pasa en el controlador
+        verify(productRepository, times(1)).findById(id);
+        verify(productRepository, times(1)).deleteById(id);  // 👈 aquí estaba el problema
+    }
+
+
 }

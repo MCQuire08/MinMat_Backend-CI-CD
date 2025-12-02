@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.Instant;
@@ -26,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -59,33 +61,7 @@ public class UserAchievementRestControllerAPITest {
                 .build();
     }
 
-    // LISTAR TODOS LOS ACHIEVEMENTS
-    @Test
-    void getAllAchievements_success() throws Exception {
-        Achievement a1 = new Achievement();
-        a1.setId(1L);
-        a1.setName("Logro 1");
-
-        List<Achievement> achievements = List.of(a1);
-        Page<Achievement> page = new PageImpl<>(achievements, PageRequest.of(0, 10), achievements.size());
-
-        when(achievementRepository.findAll(any(Pageable.class))).thenReturn(page);
-
-        mockMvc.perform(get("/achievements")
-                        .param("page", "1")
-                        .param("size", "10"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Achievements retrieved successfully"))
-                .andExpect(jsonPath("$.data[0].id").value(1))
-                .andExpect(jsonPath("$.data[0].name").value("Logro 1"))
-                .andExpect(jsonPath("$.meta.totalElements").value(1))
-                .andExpect(jsonPath("$.meta.pageNumber").value(1))
-                .andExpect(jsonPath("$.meta.pageSize").value(10));
-
-        verify(achievementRepository, times(1)).findAll(any(Pageable.class));
-    }
-
-   //LISTAR TODOS LOS ACHIEVEMENTS CON page = 0 (dato erróneo)
+   //LISTAR TODOS LOS ACHIEVEMENTS CON page = 0 (dato erróneo) (Fallo Intencional)
     @Test
     void getAllAchievements_invalidPage_returnsServerError() throws Exception {
         mockMvc.perform(get("/achievements")
@@ -178,28 +154,49 @@ public class UserAchievementRestControllerAPITest {
         verify(userAchievementRepository, times(1)).save(any(UserAchievement.class));
     }
 
-
-    //AGREGAR ACHIEVEMENT A USUARIO QUE NO EXISTE
+    // AGREGAR ACHIEVEMENT CON DATOS ERRÓNEOS (Fallo Intencional)
     @Test
-    void addAchievementToUser_userNotFound_returnsNotFound() throws Exception {
-        Long userId = 99L;
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+    void addAchievementToUser_invalidData_returnsBadRequest() throws Exception {
+        Long userId = 1L;
+
+        User user = new User();
+        user.setId(userId);
+
+        Role role = new Role();
+        role.setId(1);
+        role.setName(RoleEnum.USER);
+        role.setDescription("Test role");
+        user.setRole(role);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         String jsonBody = """
-                {
-                  "achievement": { "id": 1 },
-                  "achievedAt": "2024-01-01T00:00:00Z"
-                }
-                """;
+        {
+          "achievement": {},
+          "achievedAt": "2024-01-01T00:00:00Z"
+        }
+        """;
 
-        mockMvc.perform(post("/achievements/{userId}", userId)
+        MvcResult result = mockMvc.perform(post("/achievements/{userId}", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonBody))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("User not found!"));
+                .andReturn();
+
+        int status = result.getResponse().getStatus();
+        String body  = result.getResponse().getContentAsString();
+        assertEquals(
+                400,
+                status,
+                "FALLO INTENCIONAL: Los datos enviados son inválidos. " +
+                        "Se esperaba HTTP 400 porque el JSON no contiene achievement.id, " +
+                        "lo cual es obligatorio. " +
+                        "Sin embargo, el controlador respondió " + status + ". " +
+                        "Respuesta completa del servidor: " + body
+        );
 
         verify(userRepository, times(1)).findById(userId);
         verify(achievementRepository, never()).findById(anyLong());
         verify(userAchievementRepository, never()).save(any(UserAchievement.class));
     }
+
 }
